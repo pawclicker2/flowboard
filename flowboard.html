@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlowBoard | Task Board</title>
+<meta name="description" content="FlowBoard is a task board with drag and drop. Plan, track and finish your work. Saved in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060b18;--panel:#0d1630;--panel-2:#111d3d;--card:#16234a;--ink:#eef3ff;--muted:#8fa0c4;--line:rgba(120,155,255,.16);--blue:#3b82f6;--cyan:#38d6ff;--amber:#f5b83d;--green:#34d399;--red:#ff5d73}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font:16px/1.5 'DM Sans',system-ui,sans-serif;background:radial-gradient(900px 480px at 85% -10%,rgba(59,130,246,.28),transparent 70%),radial-gradient(700px 400px at -5% 10%,rgba(56,214,255,.12),transparent 70%),var(--bg)}
+h1,h2,h3{font-family:'Sora',system-ui,sans-serif;margin:0}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header{padding:26px 0 8px}
+header .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:grid;place-items:center;box-shadow:0 8px 24px rgba(59,130,246,.45)}
+.logo svg{width:22px;height:22px}
+.brand h1{font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+.brand p{margin:0;color:var(--muted);font-size:.9rem}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0 24px}
+.tile{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.tile span{display:block;color:var(--muted);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.tile b{display:block;font-family:'Sora',sans-serif;font-size:2rem;line-height:1.2;margin-top:4px}
+.tile .bar{height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-top:12px}
+.tile .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:99px;transition:width .5s}
+.tools{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px;align-items:center}
+.add{display:flex;flex:1 1 440px;gap:10px;flex-wrap:nowrap;align-items:center;background:var(--panel);border:1px solid var(--line);padding:10px;border-radius:16px}
+.add input[type=text]{flex:1 1 200px;background:transparent;border:0;padding:10px 12px}
+.add input[type=text]::placeholder,input[type=search]::placeholder{color:#6f81a8}
+select,input[type=search]{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--ink)}
+select option{background:#0d1630}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.btn{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;border:0;border-radius:12px;padding:10px 22px;font-weight:600;cursor:pointer;box-shadow:0 8px 20px rgba(37,99,235,.4);transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(37,99,235,.55)}
+.btn.ghost{background:var(--panel);border:1px solid var(--line);box-shadow:none;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink);border-color:var(--blue)}
+input[type=search]{flex:0 1 220px}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start;padding-bottom:20px}
+.col{--a:var(--blue);background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--a);border-radius:18px;padding:14px;min-height:300px;transition:background .15s,box-shadow .15s}
+.col[data-status=doing]{--a:var(--amber)}
+.col[data-status=done]{--a:var(--green)}
+.col.over{background:var(--panel-2);box-shadow:0 0 0 2px var(--a),0 0 30px color-mix(in srgb,var(--a) 35%,transparent)}
+.col h2{font-size:.98rem;display:flex;align-items:center;justify-content:space-between;margin:4px 4px 14px}
+.col h2 span.t{display:flex;align-items:center;gap:9px}
+.col h2 span.t::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--a);box-shadow:0 0 12px var(--a)}
+.count{background:rgba(255,255,255,.08);border-radius:99px;font-size:.8rem;padding:1px 11px;color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:600}
+.list{display:grid;gap:10px}
+.task{background:linear-gradient(180deg,var(--card),#122046);border:1px solid var(--line);border-radius:14px;padding:13px 14px;cursor:grab;display:grid;gap:11px;transition:transform .18s,border-color .18s,box-shadow .18s;animation:pop .25s ease}
+.task:hover{transform:translateY(-3px);border-color:rgba(120,155,255,.4);box-shadow:0 12px 26px rgba(0,0,0,.35)}
+.task.drag{opacity:.4}
+@keyframes pop{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
+.task p{margin:0;overflow-wrap:anywhere;font-weight:500;outline:none;border-radius:6px}
+.task p[contenteditable=true]{background:rgba(255,255,255,.08);padding:2px 6px;margin:-2px -6px}
+.task.done p{text-decoration:line-through;color:var(--muted)}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pri{font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 10px;border-radius:99px;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
+.pri.high{--c:var(--red)}.pri.medium{--c:var(--amber)}.pri.low{--c:var(--green)}
+.acts{display:flex;gap:4px;opacity:.75;transition:opacity .15s}
+.task:hover .acts,.task:focus-within .acts{opacity:1}
+.ic{background:rgba(255,255,255,.07);border:0;border-radius:9px;width:30px;height:30px;cursor:pointer;color:var(--muted);font-size:1rem;line-height:1;transition:background .15s,color .15s}
+.ic:hover{background:rgba(255,255,255,.16);color:#fff}
+.ic[data-act=del]:hover{background:rgba(255,93,115,.25);color:var(--red)}
+.ic:disabled{opacity:.25;cursor:default}
+.empty{color:var(--muted);font-size:.92rem;text-align:center;padding:30px 8px;border:1px dashed var(--line);border-radius:14px}
+footer{color:var(--muted);font-size:.85rem;padding:0 0 30px}
+@media(max-width:620px){.add{flex-wrap:wrap}.add .btn{width:100%}}
+@media(max-width:860px){.board{grid-template-columns:1fr}.col{min-height:0}.tiles{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h6M4 12h10M4 17h6"/><path d="M15 6l5 6-5 6"/></svg></div>
+      <div><h1>FlowBoard</h1><p>Plan it. Move it. Finish it.</p></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tiles" aria-live="polite">
+    <div class="tile"><span>Total tasks</span><b id="sTotal">0</b></div>
+    <div class="tile"><span>In progress</span><b id="sDoing">0</b></div>
+    <div class="tile"><span>High priority open</span><b id="sHigh">0</b></div>
+    <div class="tile"><span>Completed</span><b id="sPct">0%</b><div class="bar" role="progressbar" aria-label="Completed tasks" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="fill"></i></div></div>
+  </div>
+
+  <div class="tools">
+    <div class="add" id="addForm" role="group" aria-label="Add a task">
+      <input type="text" id="title" placeholder="Add a new task and press Enter" aria-label="Task title" maxlength="140" autocomplete="off">
+      <select id="priority" aria-label="Priority"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select>
+      <button class="btn" type="button" id="addBtn">Add task</button>
+    </div>
+    <input type="search" id="search" placeholder="Search tasks" aria-label="Search tasks">
+    <button class="btn ghost" id="clearDone" type="button">Clear done</button>
+  </div>
+
+  <div class="board" id="board">
+    <section class="col" data-status="todo" aria-labelledby="h-todo"><h2 id="h-todo"><span class="t">To do</span><span class="count" data-count="todo">0</span></h2><div class="list" data-list="todo"></div></section>
+    <section class="col" data-status="doing" aria-labelledby="h-doing"><h2 id="h-doing"><span class="t">In progress</span><span class="count" data-count="doing">0</span></h2><div class="list" data-list="doing"></div></section>
+    <section class="col" data-status="done" aria-labelledby="h-done"><h2 id="h-done"><span class="t">Done</span><span class="count" data-count="done">0</span></h2><div class="list" data-list="done"></div></section>
+  </div>
+  <footer>Drag cards between columns or use the arrows. Double-click a task to rename it. Tasks are saved in this browser only.</footer>
+</main>
+
+<script>
+const KEY = 'flowboard-tasks-v1';
+const ORDER = ['todo', 'doing', 'done'];
+const sample = [
+  { id: 1, title: 'Plan this week', priority: 'high', status: 'todo' },
+  { id: 2, title: 'Reply to new client inquiries', priority: 'medium', status: 'todo' },
+  { id: 3, title: 'Design the landing page', priority: 'high', status: 'doing' },
+  { id: 4, title: 'Build the contact form', priority: 'medium', status: 'doing' },
+  { id: 5, title: 'Set up the domain', priority: 'low', status: 'done' }
+];
+let tasks = load(), query = '', dragId = null;
+
+function load() {
+  try { const r = localStorage.getItem(KEY); if (r) { const a = JSON.parse(r); if (Array.isArray(a)) return a; } } catch (e) {}
+  return sample.map(t => ({ ...t }));
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) {} }
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const PL = { high: 'High', medium: 'Medium', low: 'Low' };
+
+function render() {
+  const q = query.trim().toLowerCase();
+  ORDER.forEach(st => {
+    const all = tasks.filter(t => t.status === st);
+    const shown = all.filter(t => !q || t.title.toLowerCase().includes(q));
+    $(`[data-count="${st}"]`).textContent = all.length;
+    $(`[data-list="${st}"]`).innerHTML = shown.length ? shown.map(card).join('') : `<div class="empty">${q ? 'No matching tasks' : 'Nothing here yet'}</div>`;
+  });
+  const done = tasks.filter(t => t.status === 'done').length;
+  const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+  $('#sTotal').textContent = tasks.length;
+  $('#sDoing').textContent = tasks.filter(t => t.status === 'doing').length;
+  $('#sHigh').textContent = tasks.filter(t => t.priority === 'high' && t.status !== 'done').length;
+  $('#sPct').textContent = pct + '%';
+  $('#fill').style.width = pct + '%';
+  $('.tile .bar').setAttribute('aria-valuenow', pct);
+}
+function card(t) {
+  const i = ORDER.indexOf(t.status);
+  return `<article class="task ${t.status === 'done' ? 'done' : ''}" draggable="true" data-id="${t.id}">
+    <p title="Double-click to rename">${esc(t.title)}</p>
+    <div class="meta"><span class="pri ${t.priority}">${PL[t.priority]}</span>
+      <div class="acts">
+        <button class="ic" data-act="left" aria-label="Move left" ${i === 0 ? 'disabled' : ''}>&larr;</button>
+        <button class="ic" data-act="right" aria-label="Move right" ${i === 2 ? 'disabled' : ''}>&rarr;</button>
+        <button class="ic" data-act="del" aria-label="Delete task">&times;</button>
+      </div></div></article>`;
+}
+
+function addTask() {
+  const input = $('#title');
+  const title = input.value.trim();
+  if (!title) { input.focus(); return; }
+  tasks.unshift({ id: Date.now(), title, priority: $('#priority').value, status: 'todo' });
+  input.value = '';
+  input.focus();
+  save(); render();
+}
+$('#addBtn').addEventListener('click', addTask);
+$('#title').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addTask(); } });
+$('#search').addEventListener('input', e => { query = e.target.value; render(); });
+$('#clearDone').addEventListener('click', () => { tasks = tasks.filter(t => t.status !== 'done'); save(); render(); });
+
+$('#board').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const id = Number(b.closest('.task').dataset.id);
+  const t = tasks.find(x => x.id === id); if (!t) return;
+  if (b.dataset.act === 'del') tasks = tasks.filter(x => x.id !== id);
+  else t.status = ORDER[Math.max(0, Math.min(2, ORDER.indexOf(t.status) + (b.dataset.act === 'right' ? 1 : -1)))];
+  save(); render();
+});
+
+/* rename on double click */
+$('#board').addEventListener('dblclick', e => {
+  const p = e.target.closest('.task p'); if (!p) return;
+  const card = p.closest('.task'); card.draggable = false;
+  p.contentEditable = 'true'; p.focus();
+  getSelection().selectAllChildren(p);
+  const finish = ok => {
+    p.contentEditable = 'false'; card.draggable = true;
+    const t = tasks.find(x => x.id === Number(card.dataset.id));
+    const v = p.textContent.trim();
+    if (ok && t && v) t.title = v.slice(0, 140);
+    save(); render();
+  };
+  p.addEventListener('blur', () => finish(true), { once: true });
+  p.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') { ev.preventDefault(); p.blur(); }
+    if (ev.key === 'Escape') { p.textContent = tasks.find(x => x.id === Number(card.dataset.id)).title; p.blur(); }
+  });
+});
+
+/* drag and drop */
+$('#board').addEventListener('dragstart', e => {
+  const c = e.target.closest('.task'); if (!c) return;
+  dragId = Number(c.dataset.id); c.classList.add('drag');
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', String(dragId)); } catch (err) {}
+});
+$('#board').addEventListener('dragend', () => {
+  dragId = null;
+  document.querySelectorAll('.drag').forEach(n => n.classList.remove('drag'));
+  document.querySelectorAll('.col.over').forEach(n => n.classList.remove('over'));
+});
+document.querySelectorAll('.col').forEach(col => {
+  col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('over'); });
+  col.addEventListener('dragleave', e => { if (!col.contains(e.relatedTarget)) col.classList.remove('over'); });
+  col.addEventListener('drop', e => {
+    e.preventDefault(); col.classList.remove('over');
+    const t = tasks.find(x => x.id === dragId);
+    if (t && t.status !== col.dataset.status) { t.status = col.dataset.status; save(); render(); }
+  });
+});
+render();
+</script>
+</body>
+</html>
